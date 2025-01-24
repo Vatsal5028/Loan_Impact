@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="google-site-verification" content="googleea384c43ad6f56ba.htmle">
+<title>Loan Impact - Simplifying Loan Calculations</title>
+<meta name="description" content="Easily calculate loan impacts and EMI payments. Accurate results and free tools to simplify your finances.">
+<meta name="keywords" content="loan calculator, EMI calculator, loan impact, financial tools">
+<meta name="author" content="Vatsal">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Impact</title>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #2ec4b6, #cbf3f0);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+
+        }
+
+        .container {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 90%; /* Make it more fluid */
+    max-width: 400px;
+    margin: auto; /* Center horizontally */
+    box-sizing: border-box;
+    position: relative; /* Remove absolute positioning */
+    top: 0; /* Remove top positioning */
+    transform: none; /* Remove transform */
+}
+
+
+        }
+
+        .container h1 {
+            text-align: center;
+            color: #2ec4b6;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #2ec4b6;
+            outline: none;
+            box-shadow: 0 0 5px rgba(46, 196, 182, 0.5);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #2ec4b6;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background: #239a91;
+        }
+
+        .separator {
+            border-top: 1px solid #ddd;
+            margin: 20px 0;
+        }
+
+        .tab {
+            margin-top: 20px;
+        }
+
+        .tab h2 {
+            color: #2ec4b6;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Loan Impact</h1>
+<p style="font-size: 12px; color: #666; text-align: center; margin-bottom: 10px;">Disclaimer: This is a simplified calculation. Actual results may vary. Use wisely.</p>
+
+
+        <form id="loanForm">
+            <div class="form-group">
+                <label for="principal">Principal Outstanding (INR)</label>
+                <input type="number" id="principal" name="principal" required min="0" step="1">
+            </div>
+            <div class="form-group">
+                <label for="interestRate">Interest Rate per Annum (%)</label>
+                <input type="number" id="interestRate" name="interestRate" required min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="pendingEmis">Pending EMIs (in months)</label>
+                <input type="number" id="pendingEmis" name="pendingEmis" required min="1" step="1">
+            </div>
+            <div class="form-group">
+                <label for="currentEmi">Current EMI (INR)</label>
+                <input type="number" id="currentEmi" name="currentEmi" required min="0" step="1">
+            </div>
+            <div class="separator"></div>
+
+            <div class="tab" id="phase2">
+                <h2>Increase EMI</h2>
+                <div class="form-group">
+                    <label for="increasedEmi">Increased EMI (INR)</label>
+                    <input type="number" id="increasedEmi" name="increasedEmi" required min="0" step="1">
+                </div>
+                <button type="button" class="btn" id="calculateIncreasedEmiButton">Calculate</button>
+            </div>
+
+            <div class="separator"></div>
+
+            <div class="tab" id="phase3">
+                <h2>Part Payment</h2>
+                <div class="form-group">
+                    <label for="partPayment">Part Payment (INR)</label>
+                    <input type="number" id="partPayment" name="partPayment" required min="0" step="1">
+                </div>
+                <div class="form-group">
+                    <label for="reductionOption">Select Below</label>
+                    <select id="reductionOption" name="reductionOption">
+                        <option value="tenure">Reduce Loan Tenure</option>
+                        <option value="emi">Reduce EMI Current Amount</option>
+                    </select>
+                </div>
+                <button type="button" class="btn" id="calculatePartPaymentButton">Calculate</button>
+            </div>
+        </form>
+</form>
+<div style="margin-top: 20px; font-size: 14px; color: #555;">
+    <h3>Definitions:</h3>
+    <p><strong>Increased EMI:</strong> Refers to paying a higher monthly installment than your current EMI to repay the loan faster and save on interest.</p>
+    <p><strong>Part Payment:</strong> A lump sum payment made towards the loan principal to reduce the overall outstanding balance.</p>
+    <p><strong>Reduce Tenure:</strong> Using a part payment to shorten the loan duration while keeping the EMI amount the same.</p>
+    <p><strong>Reduce EMI Amount:</strong> Using a part payment to lower your monthly EMI while keeping the loan tenure the same.</p>
+</div>
+
+    </div>
+    <script>
+        // Phase 2: Increase EMI calculation
+        document.getElementById('calculateIncreasedEmiButton').addEventListener('click', function() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
+            const pendingEmis = parseInt(document.getElementById('pendingEmis').value, 10);
+            const increasedEmi = parseFloat(document.getElementById('increasedEmi').value);
+
+            if (increasedEmi <= 0) {
+                alert('Please enter a valid increased EMI amount.');
+                return;
+            }
+
+            let remainingBalance = principal;
+            let newEmiCount = 0;
+            let totalInterest = 0;
+
+            while (remainingBalance > 0) {
+                const interest = remainingBalance * interestRate;
+                const principalPayment = increasedEmi - interest;
+                remainingBalance -= principalPayment;
+                totalInterest += interest;
+                newEmiCount++;
+            }
+
+            const emisReduced = pendingEmis - newEmiCount;
+            alert(With an increased EMI of INR ${increasedEmi},\n +
+                  EMIs will reduce by ${emisReduced} months,\n +
+                  and you will save INR ${(totalInterest).toFixed(2)} in interest.);
+        });
+
+        // Phase 3: Part Payment calculation
+        document.getElementById('calculatePartPaymentButton').addEventListener('click', function() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
+            const pendingEmis = parseInt(document.getElementById('pendingEmis').value, 10);
+            const currentEmi = parseFloat(document.getElementById('currentEmi').value);
+            const partPayment = parseFloat(document.getElementById('partPayment').value);
+            const reductionOption = document.getElementById('reductionOption').value;
+
+            if ( partPayment > principal) {
+                alert('Part payment must be at least equal to one EMI and not exceed the principal outstanding.');
+                return;
+            }
+
+            if (reductionOption === 'tenure') {
+                let remainingBalance = principal - partPayment;
+                let newEmiCount = 0;
+
+                while (remainingBalance > 0) {
+                    const interest = remainingBalance * interestRate;
+                    const principalPayment = currentEmi - interest;
+                    remainingBalance -= principalPayment;
+                    newEmiCount++;
+                }
+
+                const emisReduced = pendingEmis - newEmiCount;
+                alert(With a part payment of INR ${partPayment},\n +
+                      EMIs will reduce by ${emisReduced} months.);
+            } else if (reductionOption === 'emi') {
+                let remainingBalance = principal - partPayment;
+                const newEmi = (remainingBalance * interestRate) / (1 - Math.pow(1 + interestRate, -pendingEmis));
+
+                alert(With a part payment of INR ${partPayment},\n +
+                      your new EMI will be INR ${newEmi.toFixed(2)}.);
+            }
+
+        });
+    </script>
+<footer style="text-align: center; margin-top: 20px; font-size: 14px; color: #666;">
+    <p>For feedback or promotions, contact us at <a href="mailto:vatsaljoshi3053@gmail.oom" style="color: #2ec4b6; text-decoration: none;">vatsaljoshi3053@gmail.oom</a></p>
+</footer>
+
+</body>
+</html>
