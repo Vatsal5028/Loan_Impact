@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="google-site-verification" content="9K7zTH-qMbMGU3VzHonB8olB7HUfl1sN1qUeQ-O-iI8" />
+<meta name="google-site-verification" content="googleea384c43ad6f56ba.htmle">
 <title>Loan Impact - Simplifying Loan Calculations</title>
 <meta name="description" content="Easily calculate loan impacts and EMI payments. Accurate results and free tools to simplify your finances.">
 <meta name="keywords" content="loan calculator, EMI calculator, loan impact, financial tools">
@@ -170,73 +170,82 @@
 
     </div>
     <script>
-        // Phase 2: Increase EMI calculation
-        document.getElementById('calculateIncreasedEmiButton').addEventListener('click', function() {
-            const principal = parseFloat(document.getElementById('principal').value);
-            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
-            const pendingEmis = parseInt(document.getElementById('pendingEmis').value, 10);
-            const increasedEmi = parseFloat(document.getElementById('increasedEmi').value);
+       // Phase 2: Increase EMI calculation
+document.getElementById('calculateIncreasedEmiButton').addEventListener('click', function() {
+    const principal = parseFloat(document.getElementById('principal').value);
+    const interestRate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
+    const pendingEmis = parseInt(document.getElementById('pendingEmis').value, 10);
+    const increasedEmi = parseFloat(document.getElementById('increasedEmi').value);
 
-            if (increasedEmi <= 0) {
-                alert('Please enter a valid increased EMI amount.');
+    if (isNaN(principal) || isNaN(interestRate) || isNaN(pendingEmis) || isNaN(increasedEmi) || increasedEmi <= 0) {
+        alert('Please fill all fields with valid numbers.');
+        return;
+    }
+
+    let remainingBalance = principal;
+    let newEmiCount = 0;
+    let totalInterest = 0;
+
+    while (remainingBalance > 0) {
+        const interest = remainingBalance * interestRate;
+        const principalPayment = increasedEmi - interest;
+        if (principalPayment <= 0) {
+            alert('Increased EMI is too low to cover interest. Please increase it.');
+            return;
+        }
+        remainingBalance -= principalPayment;
+        totalInterest += interest;
+        newEmiCount++;
+    }
+
+    const emisReduced = pendingEmis - newEmiCount;
+    alert(`With an increased EMI of INR ${increasedEmi},\nEMIs will reduce by ${emisReduced} months,\nand you will save INR ${totalInterest.toFixed(2)} in interest.`);
+});
+
+// Phase 3: Part Payment calculation
+document.getElementById('calculatePartPaymentButton').addEventListener('click', function() {
+    const principal = parseFloat(document.getElementById('principal').value);
+    const interestRate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
+    const pendingEmis = parseInt(document.getElementById('pendingEmis').value, 10);
+    const currentEmi = parseFloat(document.getElementById('currentEmi').value);
+    const partPayment = parseFloat(document.getElementById('partPayment').value);
+    const reductionOption = document.getElementById('reductionOption').value;
+
+    if (isNaN(principal) || isNaN(interestRate) || isNaN(pendingEmis) || isNaN(currentEmi) || isNaN(partPayment) || partPayment <= 0) {
+        alert('Please fill all fields with valid numbers.');
+        return;
+    }
+
+    if (partPayment > principal) {
+        alert('Part payment cannot exceed the principal outstanding.');
+        return;
+    }
+
+    if (reductionOption === 'tenure') {
+        let remainingBalance = principal - partPayment;
+        let newEmiCount = 0;
+
+        while (remainingBalance > 0) {
+            const interest = remainingBalance * interestRate;
+            const principalPayment = currentEmi - interest;
+            if (principalPayment <= 0) {
+                alert('Current EMI is too low to cover interest. Please increase EMI.');
                 return;
             }
+            remainingBalance -= principalPayment;
+            newEmiCount++;
+        }
 
-            let remainingBalance = principal;
-            let newEmiCount = 0;
-            let totalInterest = 0;
+        const emisReduced = pendingEmis - newEmiCount;
+        alert(`With a part payment of INR ${partPayment},\nEMIs will reduce by ${emisReduced} months.`);
+    } else if (reductionOption === 'emi') {
+        let remainingBalance = principal - partPayment;
+        const newEmi = (remainingBalance * interestRate) / (1 - Math.pow(1 + interestRate, -pendingEmis));
 
-            while (remainingBalance > 0) {
-                const interest = remainingBalance * interestRate;
-                const principalPayment = increasedEmi - interest;
-                remainingBalance -= principalPayment;
-                totalInterest += interest;
-                newEmiCount++;
-            }
+        alert(`With a part payment of INR ${partPayment},\nyour new EMI will be INR ${newEmi.toFixed(2)}.`);
+    }
+});
 
-            const emisReduced = pendingEmis - newEmiCount;
-            alert(With an increased EMI of INR ${increasedEmi},\n +
-                  EMIs will reduce by ${emisReduced} months,\n +
-                  and you will save INR ${(totalInterest).toFixed(2)} in interest.);
-        });
-
-        // Phase 3: Part Payment calculation
-        document.getElementById('calculatePartPaymentButton').addEventListener('click', function() {
-            const principal = parseFloat(document.getElementById('principal').value);
-            const interestRate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
-            const pendingEmis = parseInt(document.getElementById('pendingEmis').value, 10);
-            const currentEmi = parseFloat(document.getElementById('currentEmi').value);
-            const partPayment = parseFloat(document.getElementById('partPayment').value);
-            const reductionOption = document.getElementById('reductionOption').value;
-
-            if ( partPayment > principal) {
-                alert('Part payment must be at least equal to one EMI and not exceed the principal outstanding.');
-                return;
-            }
-
-            if (reductionOption === 'tenure') {
-                let remainingBalance = principal - partPayment;
-                let newEmiCount = 0;
-
-                while (remainingBalance > 0) {
-                    const interest = remainingBalance * interestRate;
-                    const principalPayment = currentEmi - interest;
-                    remainingBalance -= principalPayment;
-                    newEmiCount++;
-                }
-
-                const emisReduced = pendingEmis - newEmiCount;
-                alert(With a part payment of INR ${partPayment},\n +
-                      EMIs will reduce by ${emisReduced} months.);
-            } else if (reductionOption === 'emi') {
-                let remainingBalance = principal - partPayment;
-                const newEmi = (remainingBalance * interestRate) / (1 - Math.pow(1 + interestRate, -pendingEmis));
-
-                alert(With a part payment of INR ${partPayment},\n +
-                      your new EMI will be INR ${newEmi.toFixed(2)}.);
-            }
-
-        });
     </script>
 <footer style="text-align: center; margin-top: 20px; font-size: 14px; color: #666;">
     <p>For feedback or promotions, contact us at <a href="mailto:vatsaljoshi3053@gmail.oom" style="color: #2ec4b6; text-decoration: none;">vatsaljoshi3053@gmail.oom</a></p>
